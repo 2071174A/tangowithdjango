@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 def index(request):
-    hi = 1
-    return HttpResponse("Rango says hey there world!")
+    return HttpResponse("Rango says hey there world! <br/> <a href='/rango/about'>About</a>")
 
-# Create your views here.
+def about(request):
+    return HttpResponse("This tutorial has been put together by Ross Anderson,2071174 <br/> <a href='/rango'>Index</a>")
