@@ -5,11 +5,22 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tango_with_django_project.setti
 import django
 django.setup()
 
-from rango.models import Category, Page
+from rango.models import Category
+from rango.models import Page
 
 
 def populate():
     python_cat = add_cat('Python')
+
+    user_cat = add_cat('2071174A')
+
+    add_page(user_cat,
+             title = "My Github",
+             url="https://github.com/2071174A")
+    add_page(user_cat,
+            title = "PythonAnywhere",
+            url="https://www.pythonanywhere.com/user/2071174a/consoles/")
+
 
     add_page(cat=python_cat,
         title="Official Python Tutorial",
