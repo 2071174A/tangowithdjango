@@ -8,10 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 
 def index(request):
-    # Query the database for a list of ALL categories currently stored.
-    # Order the categories by no. likes in descending order.
-    # Retrieve the top 5 only - or all if less than 5.
-    # Place the list in our context_dict dictionary which will be passed to the template engine.
+
     category_list = Category.objects.order_by('-likes')[:5]
     context_dict = {'categories': category_list}
 
@@ -143,14 +140,14 @@ def user_login(request):
                 return HttpResponse("Your Rango account is disabled.")
         else:
             print "Invalid login details: {0}, {1}".format(username, password)
-            return render(request, 'rango/login.html',
+            return render(request, "rango/login.html",
                           {'wrong_info': 'Username and/or password entered incorrectly'})
     else:
         return render(request, 'rango/login.html', {})
 
 @login_required
 def restricted(request):
-    return HttpResponse("Since you're logged in, you can see this text!")
+        return render(request, 'rango/restricted.html', {})
 
 @login_required
 def user_logout(request):
