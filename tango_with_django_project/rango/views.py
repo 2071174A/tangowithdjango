@@ -5,6 +5,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from rango.forms import PageForm, PasswordChangeForm
+
 
 
 
@@ -95,7 +97,6 @@ def add_category(request):
     # Render the form with error messages (if any).
     return render(request, 'rango/add_category.html', {'form': form})
 
-from rango.forms import PageForm
 
 @login_required
 def add_page(request, category_name_slug):
@@ -124,67 +125,29 @@ def add_page(request, category_name_slug):
 
     return render(request, 'rango/add_page.html', context_dict)
 
-def register(request):
-
-    registered = False
-
-    if request.method == 'POST':
-
-        user_form = UserForm(data=request.POST)
-        profile_form = UserProfileForm(data=request.POST)
-
-        if user_form.is_valid() and profile_form.is_valid():
-
-            user = user_form.save()
-            user.set_password(user.password)
-            user.save()
-
-            profile = profile_form.save(commit=False)
-            profile.user = user
-
-            if 'picture' in request.FILES:
-                profile.picture = request.FILES['picture']
-
-            profile.save()
-
-            registered = True
-
-        else:
-            print user_form.errors, profile_form.errors
-    else:
-        user_form = UserForm()
-        profile_form = UserProfileForm()
-    return render(request,
-            'rango/register.html',
-            {'user_form': user_form, 'profile_form': profile_form, 'registered': registered} )
-
-def user_login(request):
-
-    if request.method == 'POST':
-
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-
-        if user:
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect('/rango/')
-            else:
-                return HttpResponse("Your Rango account is disabled.")
-        else:
-            print "Invalid login details: {0}, {1}".format(username, password)
-            return render(request, "rango/login.html",
-                          {'wrong_info': 'Username and/or password entered incorrectly'})
-    else:
-        return render(request, 'rango/login.html', {})
-
 @login_required
 def restricted(request):
         return render(request, 'rango/restricted.html', {})
 
 @login_required
-def user_logout(request):
-    logout(request)
-    # Take the user back to the homepage.
-    return HttpResponseRedirect('/rango/')
+def changepassword(request):
+    if request.method == 'POST':
+
+        oldPassword = request.POST['oldPassword']
+        newPassword = request.POST['newPassword']
+        newPasswordConfirm = request.POST['newPasswordConfirm']
+
+        if not authenticate(username = request.user.get_username(), password = oldPassword):
+            return render(request, "rango/changepassword.html", {'wrong_info': 'current Password differs'})
+
+        elif newPassword and newPassword != newPasswordConfirm:
+            return render(request, "rango/changepassword.html", {'wrong_info':'New password does not match '})
+
+        request.user.set_password(newPassword)
+        request.user.save()
+
+        return render(request, "rango/index.html", {'header_message': 'Password changed successfully'})
+    else:
+        return render(request,"rango/changepassword.html")
+
+

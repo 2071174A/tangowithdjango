@@ -5,22 +5,16 @@
 {% block title %}{% endblock %}
 
 {% block body_block %}
-        <h1>Login to Rango</h1>
+ <link href="http://getbootstrap.com/examples/signin/signin.css" rel="stylesheet">
 
-        {{wrong_info}}
-        <br><br>
+<form class="form-signin" role="form" method="post" action=".">
+{% csrf_token %}
 
-        <form id="login_form" method="post" action="{%url 'login'%}">
-            {% csrf_token %}
-            Username: <input type="text" name="username" value="" placeholder = "Username" size="40" />
-            <br />
-            Password: <input type="password" name="password" placeholder = "**********" value="" size="40" />
-            <br />
+<h2 class="form-signin-heading">Please sign in</h2>
+<input class="form-control" placeholder="Username" id="id_username" maxlength="254" name="username" type="text" required autofocus=""/>
+<input type="password" class="form-control" placeholder="Password" id="id_password" name="password" type="password" required />
 
-            <input type="submit" value="Log-in" />
+        <button class="btn btn-lg btn-primary btn-block" type="submit" value="Submit" />Sign in</button>
         </form>
-
 {% endblock %}
 </html>
-
-Y

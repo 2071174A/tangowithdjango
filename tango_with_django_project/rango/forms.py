@@ -47,3 +47,7 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         fields = ('website', 'picture')
 
+class PasswordChangeForm(forms.ModelForm):
+    oldPassword = forms.CharField(widget=forms.PasswordInput(), help_text = "Enter current password")
+    newPassword = forms.CharField(widget=forms.PasswordInput(),help_text = "Enter new password")
+    newPasswordConfirm = forms.CharField(widget=forms.PasswordInput(),help_text = "Enter new password again")

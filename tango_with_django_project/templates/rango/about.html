@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html>
 {% extends 'rango/base.html' %}
+
 {% load staticfiles %}
-{% block title %}{% endblock %}
+
+{% block title %}About{% endblock %}
 
 {% block body_block %}
-        <h1>Hi!</h1>
-        <strong>{{ boldmessage }}</strong><br />
-        <img src="{% static "images/GoingFullDive.jpg" %}" alt="Picture of Ross" />
-<p/> visits: {{visits}}</p>
-{% endblock %}
+    <div class="page-header">
+                <h1>About</h1>
+            </div>
+            <div>
+            <p></strong>.</p>
 
+            <img  width="90" height="100" src="{% static "images/GoingFullDive.jpg" %}" alt="Picture of Ross" /> <!-- New line -->
+            </div>
+{% endblock %}
 </html>
+
