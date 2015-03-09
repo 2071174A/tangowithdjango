@@ -13,7 +13,7 @@ def run_query(search_terms):
     source = 'Web'
 
     # Specify how many results we wish to be returned per page.
-    # Offset specifies where in the results list to start from.
+    # Oqueryffset specifies where in the results list to start from.
     # With results_per_page = 10 and offset = 11, this would start from page 2.
     results_per_page = 10
     offset = 0
@@ -71,7 +71,10 @@ def run_query(search_terms):
     return results
 
 def main():
-    print BING_API_KEY
+    term = raw_input("Enter search term: ")
+    results = run_query(term);
+    for result in results:
+        print (result['title'] + ": " + result['link'] + ": " + result['summary'])
 
 
 if __name__ == '__main__':

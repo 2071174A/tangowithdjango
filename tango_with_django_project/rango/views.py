@@ -1,11 +1,14 @@
 from django.shortcuts import render
-from rango.models import Category, Page
-from rango.forms import CategoryForm, UserForm, UserProfileForm
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate, login, logout
+from rango.models import Category, Page, UserProfile
+from rango.forms import CategoryForm
+from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from rango.forms import PageForm, PasswordChangeForm
+from rango.forms import PageForm
+from rango.bing_search import run_query
+from django.template import RequestContext
+from django.shortcuts import render_to_response
 
 
 
@@ -55,21 +58,36 @@ def about(request):
     context_dict = {'boldmessage': "Just like real life!",'visits':count}
     return render(request, 'rango/about.html', context_dict)
 
-def category(request, category_name_slug):
 
-    # Create a context dictionary which we can pass to the template rendering engine.
+def category(request, category_name_slug):
+    #initialise dict for searching by POST request
     context_dict = {}
+    context_dict['result_list'] = None
+    context_dict['query'] = None
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            result_list = run_query(query) #get results from Bing API
+            context_dict['result_list'] = result_list
+            context_dict['query'] = query
 
     try:
+
         category = Category.objects.get(slug=category_name_slug)
         context_dict['category_name'] = category.name
-        pages = Page.objects.filter(category=category)
+        pages = Page.objects.filter(category=category).order_by('-views')
         context_dict['pages'] = pages
         context_dict['category'] = category
+        context_dict['category_name_slug'] = category_name_slug
+
     except Category.DoesNotExist:
         pass
 
-    # Go render the response and return it to the client.
+    if not context_dict['query']:
+        context_dict['query'] = category.name
+
     return render(request, 'rango/category.html', context_dict)
 
 @login_required()
@@ -113,6 +131,7 @@ def add_page(request, category_name_slug):
                 page = form.save(commit=False)
                 page.category = cat
                 page.views = 0
+                page.generate_id()
                 page.save()
                 # probably better to use a redirect here.
                 return category(request, category_name_slug)
@@ -151,3 +170,42 @@ def changepassword(request):
         return render(request,"rango/changepassword.html")
 
 
+
+def search(request):
+
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
+
+        if query:
+            # Run our Bing function to get the results list!
+            result_list = run_query(query)
+
+    return render(request, 'rango/search.html', {'result_list': result_list})
+
+def track_url(request):
+    context=RequestContext(request)
+    page_id=None
+    if request.method == 'GET':
+        if 'page_id' in request.GET:
+            page_id = request.GET['page_id']
+            if page_id:
+                page=Page.objects.get(id=page_id)
+                page.views+=1
+                page.save()
+                return HttpResponseRedirect(page.url)
+    return render_to_response('rango/index.html',context)
+
+def profile(request):
+    context_dict = {}
+    user = request.user
+
+    try:
+        profile = UserProfile.objects.get(user=user)
+    except:
+        profile = None
+
+    context_dict['user'] = user
+    context_dict['userprofile'] = profile
+    return render(request, 'rango/profile.html', context_dict)
